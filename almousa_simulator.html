@@ -1,0 +1,166 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Al-Mousa Tower · ZEXIA-H 3D / 2D Simulator</title>
+<style>
+:root{--bg:#f2f3f5;--pn:#fff;--tx:#10131a;--mu:#5d6574;--ln:#dfe2e8;--vw:#e7eaf0;--rd:#c8102e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0d12;--pn:#151922;--tx:#eef0f4;--mu:#9ba3b2;--ln:#272d39;--vw:#0f1218;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b0d12;--pn:#151922;--tx:#eef0f4;--mu:#9ba3b2;--ln:#272d39;--vw:#0f1218;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:10px 14px;background:var(--pn);border-bottom:3px solid var(--rd)}
+.br{display:flex;gap:12px;align-items:center;flex:1 1 260px}.lg{font:700 22px Georgia,serif;color:var(--rd)}.br small{display:block;color:var(--mu);font-size:11px}
+nav{display:flex;gap:6px;flex-wrap:wrap}button,select{font:inherit;border:1px solid var(--ln);background:var(--pn);color:var(--tx);padding:6px 11px;border-radius:8px;cursor:pointer}button.on,button.rd{background:var(--rd);border-color:var(--rd);color:#fff}
+main{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:12px;padding:12px}
+#st{position:relative;background:var(--vw);border:1px solid var(--ln);border-radius:12px;height:64vh;min-height:380px;overflow:hidden}
+#cv{width:100%;height:100%;display:block;touch-action:none}
+#hud{position:absolute;left:10px;top:8px;font:12px ui-monospace,monospace;color:var(--mu);pointer-events:none;white-space:pre}
+#v2{position:absolute;inset:0;overflow:auto;padding:10px}
+#sd,#ctl{background:var(--pn);border:1px solid var(--ln);border-radius:12px;padding:12px}
+#ctl{margin:0 12px 12px}.r{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:4px 0}.r b{min-width:74px;font-size:12px;color:var(--mu)}
+.kp{display:grid;grid-template-columns:1fr 1fr;gap:6px}.kp div{background:var(--bg);border-radius:8px;padding:6px 8px}.kp small{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mu)}.kp .t{background:var(--rd);color:#fff;grid-column:1/3}.kp .t small{color:#ffd9de}
+h2{margin:0 0 8px;font-size:18px}h2 small{color:var(--mu);font-weight:400}
+details{border-top:1px solid var(--ln);padding:6px 0;margin-top:6px}summary{cursor:pointer;font-weight:600}td{padding:2px 8px 2px 0;vertical-align:top;font-size:12px}td:first-child{color:var(--mu)}
+.nt{font-size:11px;color:var(--mu)}svg{width:100%;height:auto}svg text{font:11px system-ui;fill:var(--tx)}.pn{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}.pn>div{background:var(--pn);border:1px solid var(--ln);border-radius:10px;padding:8px}
+#qm{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:9}#qm>div{background:var(--pn);padding:18px;border-radius:14px;text-align:center;max-width:330px}#qr{background:#fff;padding:12px;display:inline-block;border-radius:8px;margin:10px 0}
+[hidden]{display:none!important}
+@media(max-width:900px){main{grid-template-columns:1fr}#st{height:56vh}}
+</style></head><body>
+<header><div class="br"><span class="lg">FUJITEC</span><div><b>برج الموسى · Al-Mousa Tower</b><small>Proposal SA-13064 · App. A SA-13065 · 10 × ZEXIA-H · simulator (draft)</small></div></div>
+<nav id="gt"></nav><nav id="vt"><button data-v="3d">3D</button><button data-v="2d">2D</button><button class="rd" id="qrb">QR code</button></nav></header>
+<main><section id="st"><canvas id="cv"></canvas><div id="hud"></div><div id="v2" hidden></div></section><aside id="sd"></aside></main>
+<div id="ctl"></div>
+<div id="qm" hidden><div><b id="qt"></b><br><div id="qr"></div><div class="nt" id="qu" style="word-break:break-all"></div><div class="r" id="qg" style="justify-content:center"></div><button id="qc">Close</button></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),NF=12,FH=4,CH=2.4,DH=2.1,OH=4.5;
+const G={
+1:{ids:'P1',n:1,cols:1,kg:1600,op:'1-Car SC',hw:[2300,3000],car:[1400,2400],door:1000,pit:1310,cwt:'Rear',up:'107,058.75',tot:'107,058.75',n2:'HOISTWAY 2300 × 3000. CAR INSIDE 1400 × 2400. ENTRANCE WIDTH 1000 PER CAR.',n4:'DOOR OP WIDTH 1000, OFFSET BY 20 (FACTORY REPLY). PIT >= 1310 (FACTORY REPLY).'},
+2:{ids:'P2-P3-P4',n:3,cols:3,kg:1200,op:'3-GSO (N100)',hw:[5200,2400],car:[1600,1750],door:1000,pit:1230,cwt:'Rear',up:'93,153.75',tot:'279,461.25',n2:'HOISTWAY 5200 × 2400. CAR INSIDE 1600 × 1750. ENTRANCE WIDTH 1000 PER CAR.',n4:'PIT >= 1230 (FACTORY REPLY).'},
+3:{ids:'P5-P6-P7-P8',n:4,cols:2,kg:1200,op:'4-GSO (N100)',hw:[4300,2200],car:[1400,1650],door:900,pit:1230,cwt:'Rear',up:'88,143.75',tot:'352,575.00',n2:'HOISTWAY 4300 × 2200. CAR INSIDE 1400 × 1650. ENTRANCE WIDTH 900 PER CAR.',n4:'PIT >= 1230 (FACTORY REPLY). 2 BANKS OF 2 CARS; PLAN SHOWS ONE BANK, SCHEMATIC.'},
+4:{ids:'P9',n:1,cols:1,kg:1600,op:'1-Car SC',hw:[2300,3000],car:[1400,2400],door:1100,pit:1420,cwt:'Rear',tbc:1,up:'101,842.50',tot:'101,842.50',n2:'HOISTWAY TBC. CAR INSIDE 1400 × 2400. ENTRANCE WIDTH 1100 PER CAR.',n4:'HOISTWAY TBC. PIT >= 1420, OH >= 4500 (FACTORY REPLY).'},
+5:{ids:'P10',n:1,cols:1,kg:1600,op:'1-Car SC',hw:[2450,2800],car:[1400,2400],door:1100,pit:1200,cwt:'Side',up:'102,551.25',tot:'102,551.25',n2:'HOISTWAY 2450 × 2800. CAR INSIDE 1400 × 2400. ENTRANCE WIDTH 1100 PER CAR.',n4:'HOISTWAY 2450 x 2800 (FACTORY REPLY).'}};
+const SPEC=[['Main specifications',[['Model / control','ZEXIA-H'],['Speed','90 mpm'],['Drive','Electric traction machine · permanent-magnet synchronous motor'],['Use / class','Passenger · Loading Class AA'],['Machine room','Small machine room (w×d×h TBC)'],['Emergency landings','Applicable'],['Stops / travel','12 / 12 · 44,000 mm · overhead 4,500'],['Doors','2CO (center opening), height 2100'],['Power','400 V – 60 Hz · lighting 220 V – 60 Hz'],['Code','EN 81 (as per SASO)'],['Origin / maker','FUJITEC CO., LTD. Japan / FUJITEC CHINA Co. Ltd.']]],
+['Car design (B)',[['Finishes','Stainless steel hairline (SUS-HL): walls, door, ceiling'],['Ceiling','CE-e4'],['Sill','Extruded aluminum'],['Floor','25 mm recess for marble (marble by owner)'],['Operation board','FX-k1 with car indicator in COB (G2: TBC)'],['Buttons','CP-D3 (G4 hall: CP-D1)'],['Handrail','HR-b1, left and right side'],['Mirror','Full width, half height, rear side']]],
+['Entrance (C)',[['Frame / jamb','Narrow SUS-HL; ground floor 1 wide jamb, floor TBC'],['Landing doors','SUS-HL (ground and other floors)'],['Hall indicator','FX-k41 flushed (1-Car)'],['Faceplates','SUS-HL']]],
+['Safety, operation, comfort (D–I)',[['Passenger safety','Alarm buzzer · rescue to nearest floor · auto relevelling · emergency car lighting · 5-way intercom · multi-beam sensor · night self-check · open door warning · UCMP · door anti-stripping · impact-resistant doors'],['Specific operations','LANDIC battery landing · door-open-failure rescue · fire operation · firefighter operation · fire alarm indicator'],['Efficient operation','Anti-nuisance · auto door time · auto return to main floor · door nudging · auto separation · load bypass · overload warning · call cancellation'],['Comfort / energy / security','Arrival chime · attendant operation · LED display · emergency light · auto fan and light control · parking key switch']]]];
+let HALL=false,gk=1,view='3d',mode='shaft',sel=0,SP=3,auto=true,yaw=.6,pch=.1,dist=75,at=2,cars=[],grp,sc,cam,ren,mt,SY,tgt;
+const bx=(p,w,h,d,m,x,y,z)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);p.add(o);return o};
+const M=(c,o)=>new THREE.MeshPhongMaterial(Object.assign({color:c},o));
+function lay(){const g=G[gk],n=g.cols,W=g.hw[0]/1e3,D=g.hw[1]/1e3,cw=g.car[0]/1e3,cd=g.car[1]/1e3,xs=[];
+ if(g.cwt=='Side')xs.push(W/2-.1-cw/2);else{const gp=(W-n*cw)/(n+1);for(let i=0;i<n;i++)xs.push(-W/2+gp*(i+1)+cw*(i+.5))}
+ return{g,n,W,D,cw,cd,dw:g.door/1e3,pit:g.pit/1e3,xs,cz:D/2-.15-cd/2}}
+function tex(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return new THREE.CanvasTexture(c)}
+function lab(t,col,s){const k=tex(256,64),x=k.image.getContext('2d');x.font='bold 34px sans-serif';x.fillStyle=col||'#c8102e';x.fillText(t,6,44);const p=new THREE.Sprite(new THREE.SpriteMaterial({map:k,depthTest:false}));p.scale.set(s||4,1,1);return p}
+function drawCob(c){const x=c.cx,l=c.lit;x.fillStyle='#b9bdc4';x.fillRect(0,0,96,576);x.fillStyle='#111';x.fillRect(8,10,80,66);x.fillStyle='#ff8a1f';x.font='bold 34px monospace';x.textAlign='center';x.fillText((c.dir>0?'▲':c.dir<0?'▼':'')+(c.fl+1),48,57);
+ for(let i=0;i<NF;i++){const cx=30+(i%2)*36,cy=130+(5-(i>>1))*62;x.beginPath();x.arc(cx,cy,17,0,7);x.fillStyle=l.includes(i)?'#ff8a1f':'#e8eaee';x.fill();x.strokeStyle='#555';x.stroke();x.fillStyle='#222';x.font='bold 17px sans-serif';x.fillText(i+1,cx,cy+6)}
+ for(let i=0;i<6;i++){x.fillStyle='#555';x.fillRect(22+i*10,86,5,16)}
+ [[30,'◄►'],[66,'►◄']].forEach(([cx,t])=>{x.beginPath();x.arc(cx,486,15,0,7);x.fillStyle='#e8eaee';x.fill();x.strokeStyle='#555';x.stroke();x.fillStyle='#222';x.font='bold 13px sans-serif';x.fillText(t,cx,491)});
+ x.beginPath();x.arc(30,528,14,0,7);x.fillStyle='#e8eaee';x.fill();x.stroke();x.fillStyle='#222';x.font='13px sans-serif';x.fillText('♪',30,533);x.fillStyle='#777';x.fillRect(56,520,24,16);x.fillStyle='#222';x.fillRect(66,523,4,10);x.font='9px sans-serif';x.fillText('FX-k1',48,562);c.ct.needsUpdate=true;drawHall(c)}
+function hair(c){const k=tex(256,256),x=k.image.getContext('2d');x.fillStyle=c;x.fillRect(0,0,256,256);for(let i=0;i<500;i++){x.fillStyle=Math.random()<.5?'rgba(255,255,255,.08)':'rgba(40,45,55,.06)';x.fillRect(0,Math.random()*256,256,1)}return k}
+function marble(){const k=tex(512,512),x=k.image.getContext('2d');x.fillStyle='#ece6da';x.fillRect(0,0,512,512);for(let i=0;i<14;i++){x.strokeStyle=`rgba(120,110,100,${.08+Math.random()*.15})`;x.lineWidth=.6+Math.random()*1.6;x.beginPath();let px=Math.random()*512;x.moveTo(px,0);for(let y=0;y<=512;y+=32){px+=(Math.random()-.5)*60;x.lineTo(px,y)}x.stroke()}return k}
+function drawHall(c){const x=c.hx;x.fillStyle='#0a0a0a';x.fillRect(0,0,128,48);x.fillStyle='#ff8a1f';x.font='bold 34px monospace';x.textAlign='center';x.fillText((c.dir>0?'▲':c.dir<0?'▼':'')+(c.fl+1),64,38);c.ht.needsUpdate=true}
+function call(f){let b=cars[sel];if(HALL){let bs=1e9;cars.forEach(c=>{const p=c.st=='mov'?c.tg:c.y,s=Math.abs(p-f*FH)+c.q.length*20+(c.st=='idle'?0:6);if(s<bs){bs=s;b=c}});if(b!==cars[sel]){sel=cars.indexOf(b);document.querySelectorAll('[data-c]').forEach(x=>x.classList.toggle('on',+x.dataset.c==sel))}}b.q.push(f)}
+function mats(){mt={sus:M(0xffffff,{map:hair('#c6cad0'),shininess:80,specular:0x999999}),sus2:M(0xffffff,{map:hair('#b4b9c1'),shininess:60}),dk:M(0x1c2028),rail:M(0x5a606b),cw:M(0x6e7480),fl:M(0xffffff,{map:marble(),shininess:100,specular:0x666666}),al:M(0xd4d6da,{shininess:120}),mir:M(0x9fc4de,{shininess:200,specular:0xffffff}),glow:new THREE.MeshBasicMaterial({color:0xfff2d0}),org:new THREE.MeshBasicMaterial({color:0xff8a1f}),red:M(0xc8102e),wall:M(0xa3a9b4,{transparent:true,opacity:.15,side:THREE.DoubleSide,depthWrite:false})}}
+function build(){
+ if(grp)sc.remove(grp);grp=new THREE.Group();sc.add(grp);cars=[];
+ const{g,n,W,D,cw,cd,dw,pit,xs,cz}=lay(),T=(NF-1)*FH+OH,B=-pit,Ht=T-B,mc=(T+B)/2,ids=g.ids.split('-');
+ const ht=xs.map(()=>tex(128,48));bx(grp,W+.5,Ht,.25,mt.wall,0,mc,-D/2-.125);bx(grp,.25,Ht,D+.5,mt.wall,-W/2-.125,mc,0);bx(grp,.25,Ht,D+.5,mt.wall,W/2+.125,mc,0);
+ bx(grp,W+.5,.25,D+.5,mt.dk,0,T+.12,0);bx(grp,W,.2,D,mt.dk,0,B-.1,0);bx(grp,W+.5,pit,.25,mt.wall,0,B+pit/2,D/2+.125);
+ for(let f=0;f<NF;f++){const y0=f*FH,h=f==NF-1?FH+OH:FH,e=[-W/2-.25];xs.forEach(x=>e.push(x-dw/2,x+dw/2));e.push(W/2+.25);
+  for(let k=0;k<e.length;k+=2)bx(grp,e[k+1]-e[k],h,.25,mt.wall,(e[k]+e[k+1])/2,y0+h/2,D/2+.125);
+  xs.forEach((x,xi)=>{bx(grp,dw,h-DH,.25,mt.wall,x,y0+DH+(h-DH)/2,D/2+.125);
+   bx(grp,.08,DH,.1,mt.sus,x-dw/2-.04,y0+DH/2,D/2+.3);bx(grp,.08,DH,.1,mt.sus,x+dw/2+.04,y0+DH/2,D/2+.3);bx(grp,dw+.16,.1,.1,mt.sus,x,y0+DH+.05,D/2+.3);bx(grp,dw+.1,.04,.18,mt.al,x,y0-.02,D/2+.05);
+   bx(grp,.12,.28,.03,mt.sus,x+dw/2+.3,y0+1.1,D/2+.28);bx(grp,.03,.03,.04,mt.org,x+dw/2+.3,y0+1.16,D/2+.3);bx(grp,.03,.03,.04,mt.org,x+dw/2+.3,y0+1.05,D/2+.3);bx(grp,.33,.14,.03,mt.dk,x,y0+DH+.3,D/2+.28);const pm=new THREE.Mesh(new THREE.PlaneGeometry(.3,.11),new THREE.MeshBasicMaterial({map:ht[xi]}));pm.position.set(x,y0+DH+.3,D/2+.297);grp.add(pm)})
+  const s=lab('L'+(f+1)+'  +'+(f*FH)+'.00');s.position.set(-W/2-2.4,y0+.6,0);grp.add(s)}
+ xs.forEach((x,i)=>{
+  const c={xi:x,cz,cd,dw,y:((i*4+3)%NF)*FH,v:0,q:[],st:'idle',door:0,t:0,dir:0,lf:-1,key:'',ld:[],lit:[],id:ids[i],ht:ht[i]};c.hx=c.ht.image.getContext('2d');c.fl=Math.round(c.y/FH);
+  for(let f=0;f<NF;f++)c.ld.push([bx(grp,dw/2,DH,.04,mt.sus2,x-dw/4,f*FH+DH/2,D/2+.1),bx(grp,dw/2,DH,.04,mt.sus2,x+dw/4,f*FH+DH/2,D/2+.1)]);
+  bx(grp,.05,Ht,.14,mt.rail,x-cw/2-.07,mc,cz);bx(grp,.05,Ht,.14,mt.rail,x+cw/2+.07,mc,cz);
+  const sh=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.22,28),mt.dk);sh.rotation.z=Math.PI/2;sh.position.set(x,T-1.3,cz);grp.add(sh);bx(grp,.6,.5,.5,mt.red,x+.55,T-1.3,cz);
+  if(g.cwt=='Side'){c.cx2=-W/2+(W-cw-.1)/2;c.cz2=cz;c.cwm=bx(grp,.25,2.4,cd*.5,mt.cw,c.cx2,0,cz)}else{const r=D-cd-.15;c.cx2=x;c.cz2=-D/2+r/2;c.cwm=bx(grp,cw*.6,2.4,Math.min(.25,r-.1),mt.cw,x,0,c.cz2)}
+  c.ra=bx(grp,.03,1,.03,mt.rail,x,0,cz);c.rb=bx(grp,.03,1,.03,mt.rail,c.cx2,0,c.cz2);c.tc=bx(grp,.04,1,.02,mt.dk,x+cw/2-.3,0,cz+cd/2+.05);
+  for(let h=B+.6;h<T-.5;h+=2)[-1,1].forEach(s=>bx(grp,.16,.06,.2,mt.rail,x+s*(cw/2+.07),h,cz));
+  [[x-cw*.25,cz],[x+cw*.25,cz],[c.cx2,c.cz2]].forEach(p=>{const bf=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.45,14),mt.red);bf.position.set(p[0],B+.225,p[1]);grp.add(bf)});
+  {const gx=x+cw*.4,gz=cz-cd/2-.05,gr=bx(grp,.02,1,.02,mt.rail,gx,(T-.9+B+.5)/2,gz);gr.scale.y=T-.9-B-.5;const gv=new THREE.Mesh(new THREE.CylinderGeometry(.14,.14,.06,20),mt.dk);gv.rotation.z=Math.PI/2;gv.position.set(gx,T-.9,gz);grp.add(gv);const tw=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,.3,16),mt.cw);tw.position.set(gx,B+.4,gz);grp.add(tw)}
+  const m=new THREE.Group();grp.add(m);c.m=m;m.position.set(x,c.y,cz);
+  bx(m,cw,.06,cd,mt.al,0,-.03,0);bx(m,cw-.1,.032,cd-.1,mt.fl,0,-.014,0);bx(m,cw+.2,.25,cd+.2,mt.dk,0,-.2,0);bx(m,dw+.1,.04,.12,mt.al,0,.02,cd/2);
+  bx(m,cw,CH,.04,mt.sus,0,CH/2,-cd/2);bx(m,.04,CH,cd,mt.sus,-cw/2,CH/2,0);bx(m,.04,CH,cd,mt.sus,cw/2,CH/2,0);
+  const rt=(cw-dw)/2;bx(m,rt,CH,.04,mt.sus,-(dw+rt)/2,CH/2,cd/2);bx(m,rt,CH,.04,mt.sus,(dw+rt)/2,CH/2,cd/2);bx(m,dw,CH-DH,.04,mt.sus,0,DH+(CH-DH)/2,cd/2);
+  bx(m,cw,.04,cd,mt.sus,0,CH+.02,0);bx(m,cw-.5,.02,cd-.5,mt.dk,0,CH-.005,0);
+  bx(m,cw-.62,.02,.05,mt.glow,0,CH-.02,(cd-.62)/2);bx(m,cw-.62,.02,.05,mt.glow,0,CH-.02,-(cd-.62)/2);bx(m,.05,.02,cd-.62,mt.glow,(cw-.62)/2,CH-.02,0);bx(m,.05,.02,cd-.62,mt.glow,-(cw-.62)/2,CH-.02,0);
+  {const nb=Math.max(2,Math.round(cd/.6));for(let a=0;a<3;a++)for(let b=0;b<nb;b++){const d=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.01,16),mt.glow);d.position.set((a-1)*(cw-.9)/2,CH-.02,(b-(nb-1)/2)*.55);m.add(d)}}
+  bx(m,.22,.012,.22,mt.rail,0,CH-.012,0);bx(m,.1,.02,.06,mt.org,cw/2-.3,CH-.015,-cd/2+.3);bx(m,cw+.2,.15,cd+.2,mt.dk,0,CH+.12,0);
+  c.dp=[bx(m,dw/2,DH,.035,mt.sus2,-dw/4,DH/2,cd/2-.04),bx(m,dw/2,DH,.035,mt.sus2,dw/4,DH/2,cd/2-.04)];bx(c.dp[0],.012,DH-.3,.01,mt.org,dw/4-.008,0,.02);bx(c.dp[1],.012,DH-.3,.01,mt.org,-dw/4+.008,0,.02);
+  [-1,1].forEach(s=>{const rd=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,cd-.5,10),mt.al);rd.rotation.x=Math.PI/2;rd.position.set(s*(cw/2-.08),.9,0);m.add(rd);[-1,1].forEach(t=>bx(m,.07,.03,.03,mt.al,s*(cw/2-.055),.9,t*(cd/2-.3)))});
+  bx(m,cw-.08,1,.015,mt.mir,0,1.45,-cd/2+.03);
+  bx(m,cw-.08,.1,.012,mt.dk,0,.05,-cd/2+.026);bx(m,.012,.1,cd-.08,mt.dk,-cw/2+.026,.05,0);bx(m,.012,.1,cd-.08,mt.dk,cw/2-.026,.05,0);
+  [-1,1].forEach(t=>{bx(m,.008,CH,.01,mt.dk,t*cw/6,CH/2,-cd/2+.025);bx(m,.01,CH,.008,mt.dk,t*(cw/2-.025),CH/2,-cd/6);bx(m,.01,CH,.008,mt.dk,t*(cw/2-.025),CH/2,cd/6)});
+  {const k=tex(256,64),q=k.image.getContext('2d');q.fillStyle='#222';q.fillRect(0,0,256,64);q.fillStyle='#ddd';q.font='bold 22px sans-serif';q.textAlign='center';q.fillText(g.kg+' kg · CLASS AA',128,26);q.font='15px sans-serif';q.fillText('ZEXIA-H · 90 mpm',128,50);const pp=new THREE.Mesh(new THREE.PlaneGeometry(.32,.08),new THREE.MeshBasicMaterial({map:k}));pp.position.set(-cw/2+.03,1.9,cd/2-.45);pp.rotation.y=Math.PI/2;m.add(pp)}
+  const k=tex(96,576);c.ct=k;c.cx=k.image.getContext('2d');const pw=Math.min(.16,rt-.03),cb=new THREE.Mesh(new THREE.PlaneGeometry(pw,1.5),new THREE.MeshBasicMaterial({map:k}));cb.position.set(dw/2+rt/2,1.15,cd/2-.03);cb.rotation.y=Math.PI;m.add(cb);drawCob(c);
+  const pl=new THREE.PointLight(0xfff0d8,.7,6);pl.position.set(0,2.1,0);m.add(pl);const s=lab(c.id,'#c8102e',2.2);s.position.set(0,CH+.9,0);m.add(s);
+  cars.push(c)});
+ const mk=(a,y1,y2)=>{a.scale.y=y2-y1;a.position.y=(y1+y2)/2};window.setR=mk}
+function step(dt){const n=Math.ceil(dt/.05);for(let k=0;k<n;k++)adv(dt/n)}
+function adv(dt){at-=dt;if(auto&&at<0){at=2+Math.random()*3;const c=cars[Math.random()*cars.length|0];if(c.q.length<3)c.q.push(Math.random()*NF|0)}
+ cars.forEach(c=>{
+  if(c.st=='idle'&&c.q.length){const f=c.q.shift();c.tg=f*FH;if(Math.abs(c.tg-c.y)<.01)c.st='open';else c.st='mov'}
+  else if(c.st=='mov'){const d=c.tg-c.y,s=Math.sign(d);c.dir=s;c.v+=Math.max(-.9*dt,Math.min(.9*dt,s*Math.min(1.5,Math.sqrt(2*.9*Math.abs(d)))-c.v));c.y+=c.v*dt;
+   if(Math.abs(c.tg-c.y)<Math.max(.03,Math.abs(c.v)*dt)&&Math.abs(c.v)<.4){c.y=c.tg;c.v=0;c.st='open'}}
+  else if(c.st=='open'){c.door=Math.min(1,c.door+dt/1.6);if(c.door>=1){c.st='hold';c.t=0}}
+  else if(c.st=='hold'){c.t+=dt;if(c.t>(c.q.length?1.2:2.8))c.st='close'}
+  else if(c.st=='close'){c.door=Math.max(0,c.door-dt/1.6);if(c.door<=0){c.st='idle';c.dir=0}}
+  c.fl=Math.min(NF-1,Math.max(0,Math.round(c.y/FH)));
+  const lit=c.q.slice();if(c.st=='mov')lit.push(Math.round(c.tg/FH));const key=c.fl+'|'+c.dir+'|'+lit;if(key!=c.key){c.key=key;c.lit=lit;drawCob(c)}})}
+function place(){const L=lay();cars.forEach(c=>{c.m.position.y=c.y;const o=c.dw*.45*c.door;c.dp[0].position.x=-(c.dw/4+o);c.dp[1].position.x=c.dw/4+o;
+  if(c.lf>=0&&c.lf!=c.fl||c.door==0&&c.lf>=0){const p=c.ld[c.lf];p[0].position.x=c.xi-c.dw/4;p[1].position.x=c.xi+c.dw/4;c.lf=-1}
+  if(Math.abs(c.y-c.fl*FH)<.05&&c.door>0){c.lf=c.fl;const p=c.ld[c.fl];p[0].position.x=c.xi-c.dw/4-o;p[1].position.x=c.xi+c.dw/4+o}
+  const cy=FH*(NF-1)-c.y+1.5;c.cwm.position.y=cy;setR(c.ra,c.y+CH+.2,T0());setR(c.rb,cy+1.2,T0());setR(c.tc,Math.min(c.y-.3,22),Math.max(c.y-.3,22))});
+ const c=cars[sel];
+ if(mode=='cabin'){const p=new THREE.Vector3(c.xi,c.y+1.55,c.cz-c.cd/2+.4);cam.position.copy(p);cam.lookAt(p.x+Math.sin(yaw)*Math.cos(pch),p.y+Math.sin(pch),p.z-Math.cos(yaw)*Math.cos(pch))}
+ else{if(mode=='follow')tgt.set(c.xi,c.y+1.4,c.cz);else tgt.set(0,22,0);cam.position.set(tgt.x+dist*Math.sin(yaw)*Math.cos(pch),tgt.y+dist*Math.sin(pch),tgt.z+dist*Math.cos(yaw)*Math.cos(pch));cam.lookAt(tgt)}}
+const T0=()=>(NF-1)*FH+OH-1.3;
+function hud(){const c=cars[sel];if(c)$('#hud').textContent=`Car ${c.id} · L${c.fl+1} ${c.dir>0?'▲':c.dir<0?'▼':'■'} ${Math.abs(c.v).toFixed(2)} m/s · doors ${c.door>0&&c.door<1?'moving':c.door>=1?'open':'closed'}`}
+function setMode(m){mode=m;if(m=='shaft'){dist=75;yaw=.6;pch=.1}if(m=='follow'){dist=Math.max(7,lay().W*2+3);yaw=.5;pch=.12}if(m=='cabin'){yaw=Math.PI;pch=-.05}
+ cam.fov=m=='cabin'?72:40;cam.updateProjectionMatrix();document.querySelectorAll('[data-m]').forEach(b=>b.classList.toggle('on',b.dataset.m==m));hs()}
+function ui(){const L=lay();$('#ctl').innerHTML=`<div class="r"><b>Camera</b><button data-m="shaft">Full shaft</button><button data-m="follow">Follow car</button><button data-m="cabin">Inside cabin</button><span class="nt">drag = look · wheel / pinch = zoom</span></div>
+<div class="r"><b>Car</b>${cars.map((c,i)=>`<button data-c="${i}" class="${i==sel?'on':''}">${c.id}</button>`).join('')}</div>
+<div class="r"><b>Calls</b><label><input type="checkbox" id="hc" ${HALL?'checked':''}> Hall call (group dispatch); off = car call in selected car</label></div><div class="r"><b>Floor</b>${Array.from({length:NF},(_,i)=>`<button data-f="${i}">${i+1}</button>`).join('')}</div>
+<div class="r"><b>Simulation</b><label><input type="checkbox" id="au" ${auto?'checked':''}> Auto traffic</label><label>Speed <select id="sp"><option value="1">Real 90 mpm</option><option value="3" selected>×3</option><option value="6">×6</option></select></label><label>Walls <input type="range" id="wo" min="0" max=".6" step=".02" value=".15"></label></div>`;setMode(mode)}
+function side(){const{g}=lay(),k=(a,b,c)=>`<div class="${c||''}"><small>${a}</small>${b}</div>`;
+ $('#sd').innerHTML=`<h2>Group ${gk} <small>${g.ids}</small></h2><div class="kp">${k('Quantity',g.n+(g.n>1?' units':' unit'))+k('Capacity',g.kg+' kg · 90 mpm')+k('Operation',g.op)+k('Stops','12 / 12')+k('Travel','44,000 mm')+k('Pit / overhead',g.pit.toLocaleString('en')+' / 4,500')+k('Hoistway (w × d)',g.tbc?'TBC':g.hw.join(' × '))+k('Car inside',g.car.join(' × '))+k('Entrance',g.door+' mm · 2CO')+k('Counterweight',g.cwt)+k('Unit price (excl. VAT)','SAR '+g.up)+k('Group total (excl. VAT)','SAR '+g.tot,'t')}</div>
+<p class="nt">${g.tbc?'Hoistway size is TBC in the quotation: the 3D model assumes 2300 × 3000 mm. ':''}${gk==3?'Group 3 has 2 banks of 2 cars; one bank is modelled. ':''}Floor-to-floor 4,000 mm (44,000 ÷ 11) and car height 2,400 mm are derived, not stated in the quotation. Rail brackets, pit buffers, governor, traveling cable and ceiling lighting layout are schematic.</p>`+SPEC.map((s,i)=>`<details ${i?'':'open'}><summary>${s[0]}</summary><table>${s[1].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table></details>`).join('')}
+function sec(L){const{n,pit,g}=L,T=(NF-1)*FH+OH,sy=560/(T+pit);SY={T,sy};const Y=h=>30+(T-h)*sy;let s=`<svg viewBox="0 0 340 620"><rect x="110" y="${Y(T)}" width="110" height="${(T+pit)*sy}" fill="none" stroke="currentColor" stroke-width="2"/><rect x="116" y="${Y(T)+4}" width="98" height="${OH*sy-8}" fill="none" stroke="#888" stroke-dasharray="4"/><text x="124" y="${Y(T)+OH*sy/2}" style="fill:var(--mu)">OVERHEAD</text>`;
+ for(let i=0;i<NF;i++)s+=`<line x1="100" x2="220" y1="${Y(i*FH)}" y2="${Y(i*FH)}" stroke="#888" stroke-dasharray="4"/><text x="6" y="${Y(i*FH)+4}" style="fill:#c8102e">L${i+1} +${i*FH}.00</text>`;
+ s+=`<text x="228" y="${Y(T)+OH*sy/2}" style="fill:#c8102e">4,500</text><text x="228" y="${Y(22)}" style="fill:#c8102e">44,000 travel</text><text x="228" y="${Y(-pit/2)}" style="fill:#c8102e">${g.pit.toLocaleString('en')}</text>`;
+ const w=92/n-4;L.xs.forEach((x,i)=>s+=`<rect id="sc${i}" x="${114+i*92/n+2}" y="0" width="${w}" height="${CH*sy}" fill="#c8102e33" stroke="#c8102e"/><text x="${114+i*92/n+4}" y="${Y(-pit)-6-i*12}" style="fill:#c8102e">${g.ids.split('-')[i]}</text>`);return s+'</svg>'}
+function plan(L){const{g,n,W,D,cw,cd,dw,xs,cz}=L,s=Math.min(400/W,300/D),ox=(520-W*s)/2,oy=64,px=x=>ox+(x+W/2)*s,pz=z=>oy+(z+D/2)*s,da=g.tbc?'stroke-dasharray="6"':'';
+ let o=`<svg viewBox="0 0 520 440"><rect x="${ox}" y="${oy}" width="${W*s}" height="${D*s}" fill="none" stroke="currentColor" stroke-width="2" ${da}/><rect x="${ox+8}" y="${oy+8}" width="${W*s-16}" height="${D*s-16}" fill="none" stroke="#888" ${da}/>`;
+ xs.forEach((x,i)=>{o+=`<rect x="${px(x-cw/2)}" y="${pz(cz-cd/2)}" width="${cw*s}" height="${cd*s}" fill="#c8102e22" stroke="#c8102e" stroke-width="1.5"/><text x="${px(x)}" y="${pz(cz)}" text-anchor="middle" style="fill:#c8102e;font-weight:700">CAR ${g.car[0]} × ${g.car[1]}</text><text x="${px(x)}" y="${pz(cz)+14}" text-anchor="middle" style="fill:var(--mu)">INSIDE · ${g.ids.split('-')[i]}</text>
+ <rect x="${px(x-dw/2)}" y="${pz(D/2)-5}" width="${dw*s}" height="10" fill="none" stroke="#c8102e" stroke-dasharray="3"/><text x="${px(x)}" y="${pz(D/2)+24}" text-anchor="middle" style="fill:#c8102e">${g.door}</text>`;
+  o+=g.cwt=='Side'?`<rect x="${px(-W/2+.15)}" y="${pz(cz-cd/4)}" width="${.25*s}" height="${cd*.5*s}" fill="none" stroke="#888" stroke-dasharray="3"/><text x="${px(-W/2+.15)}" y="${pz(cz)}" style="fill:var(--mu)">CWT</text>`:`<rect x="${px(x-cw*.3)}" y="${pz(-D/2+.12)}" width="${cw*.6*s}" height="${.25*s}" fill="none" stroke="#888" stroke-dasharray="3"/><text x="${px(x)-10}" y="${pz(-D/2+.12)-3}" style="fill:var(--mu)">CWT</text>`});
+ o+=`<text x="${ox+W*s/2}" y="${oy-12}" text-anchor="middle" style="fill:#c8102e">${g.tbc?'TBC':g.hw[0]}</text><text transform="translate(${ox-12} ${oy+D*s/2}) rotate(-90)" text-anchor="middle" style="fill:#c8102e">${g.tbc?'TBC':g.hw[1]}</text><text x="260" y="430" text-anchor="middle" style="fill:var(--mu)">ENTRANCE SIDE ▼ · OFFSET OPENING SHOWN DASHED</text></svg>`;return o}
+function draw2(){const L=lay(),g=L.g;$('#v2').innerHTML=`<div class="pn"><div><b>SECTION A-A</b>${sec(L)}</div><div><b>PLAN — LEVEL 1 · SCHEMATIC, NTS</b>${plan(L)}</div></div><div class="pn" style="margin-top:12px"><div><table><tr><td>PROJECT</td><td>AL-Mousa Tower Project</td></tr><tr><td>DRAWING</td><td>G${gk} - Hoistway Section &amp; Plan</td></tr><tr><td>DWG. NO. · REV.</td><td>AMT-G${gk}-01-00</td></tr><tr><td>PROPOSAL</td><td>SA-13064 · App. A SA-13065</td></tr><tr><td>DRAWN BY</td><td>Eng. Mohamed Ismail</td></tr><tr><td>STATUS · SCALE</td><td>PROPOSAL ISSUE · NTS · mm · A4</td></tr></table></div><div class="nt">1. ALL DIMENSIONS IN MILLIMETRES UNLESS NOTED.<br>2. ${g.n2}<br>3. 12 STOPS / 12 FLOORS, TRAVEL 44,000. COUNTERWEIGHT: ${g.cwt.toUpperCase()}.<br>4. ${g.n4}<br>5. SCHEMATIC DRAWING, NOT TO SCALE (NTS).</div></div>`;upd2()}
+function upd2(){if(!SY)return;cars.forEach((c,i)=>{const r=$('#sc'+i);if(r)r.setAttribute('y',30+(SY.T-c.y-CH)*SY.sy)})}
+function hs(){try{const h='g'+gk+(view=='2d'?'-2d':mode=='cabin'?'-cabin':'');if(location.hash.slice(1)!=h)history.replaceState(null,'','#'+h)}catch(e){}}
+function setView(v){view=v;document.querySelectorAll('[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v==v));['#cv','#hud','#ctl'].forEach(s=>$(s).hidden=v!='3d');$('#v2').hidden=v=='3d';if(v=='2d')draw2();else resize();hs()}
+function select(k){gk=k;sel=0;document.querySelectorAll('[data-g]').forEach(b=>b.classList.toggle('on',+b.dataset.g==k));build();ui();side();if(view=='2d')draw2();hs()}
+function route(){const m=/^g([1-5])(?:-(2d|cabin))?$/.exec(location.hash.slice(1));if(!m)return;if(+m[1]!=gk)select(+m[1]);if(m[2]=='2d')setView('2d');else{setView('3d');setMode(m[2]=='cabin'?'cabin':mode)}}
+function resize(){const e=$('#st'),w=e.clientWidth,h=e.clientHeight;if(!w||!ren)return;ren.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+function qr(k){$('#qt').textContent='Scan to view Group '+k+' in 3D';const u=location.href.split('#')[0]+'#g'+k;$('#qu').textContent=u;$('#qr').innerHTML='';try{new QRCode($('#qr'),{text:u,width:220,height:220,correctLevel:QRCode.CorrectLevel.M})}catch(e){}
+ $('#qg').innerHTML=[1,2,3,4,5].map(i=>`<button data-q="${i}" class="${i==k?'on':''}">G${i}</button>`).join('')}
+let last=0,fr=0;function loop(t){requestAnimationFrame(loop);const dt=Math.min((t-last)/1e3,.1);last=t;if(!cars.length)return;step(dt*SP);
+ if(view=='3d'){place();if(fr%30==0)ren.setClearColor(getComputedStyle(document.documentElement).getPropertyValue('--vw').trim()||'#e7eaf0');ren.render(sc,cam)}else upd2();if(++fr%6==0)hud()}
+function init(){
+ $('#gt').innerHTML=[1,2,3,4,5].map(i=>`<button data-g="${i}">G${i} · ${G[i].ids}</button>`).join('');
+ try{ren=new THREE.WebGLRenderer({canvas:$('#cv'),antialias:true});ren.setPixelRatio(Math.min(devicePixelRatio,2));sc=new THREE.Scene();cam=new THREE.PerspectiveCamera(40,1,.05,400);tgt=new THREE.Vector3();
+  sc.add(new THREE.HemisphereLight(0xffffff,0x555a66,.95));const dl=new THREE.DirectionalLight(0xffffff,.6);dl.position.set(8,30,20);sc.add(dl);mats()}catch(e){$('#st').insertAdjacentHTML('beforeend','<p style="padding:20px">3D needs WebGL, which is unavailable here. The 2D view still works.</p>')}
+ document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.g)select(+d.g);if(d.v)setView(d.v);if(d.m)setMode(d.m);if(d.c){sel=+d.c;ui()}if(d.f)call(+d.f);if(d.q)qr(+d.q);
+  if(b.id=='qrb'){$('#qm').hidden=false;qr(gk)}if(b.id=='qc')$('#qm').hidden=true});
+ document.addEventListener('input',e=>{if(e.target.id=='sp')SP=+e.target.value;if(e.target.id=='au')auto=e.target.checked;if(e.target.id=='hc')HALL=e.target.checked;if(e.target.id=='wo')mt.wall.opacity=+e.target.value});
+ const cv=$('#cv'),P=new Map();let pd=0;
+ cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);P.set(e.pointerId,e)});cv.addEventListener('pointerup',e=>{P.delete(e.pointerId);pd=0});
+ cv.addEventListener('pointermove',e=>{const p=P.get(e.pointerId);if(!p)return;if(P.size==2){const a=[...P.values()],d=Math.hypot(a[0].clientX-a[1].clientX,a[0].clientY-a[1].clientY);if(pd)dist=Math.min(120,Math.max(3,dist*pd/d));pd=d}else{yaw-=(e.clientX-p.clientX)*.006;pch=Math.max(-1.2,Math.min(1.3,pch+(e.clientY-p.clientY)*.006))}P.set(e.pointerId,e)});
+ cv.addEventListener('wheel',e=>{e.preventDefault();dist=Math.min(120,Math.max(3,dist*(1+e.deltaY*.001)))},{passive:false});
+ new ResizeObserver(resize).observe($('#st'));addEventListener('hashchange',route);
+ select(1);setView('3d');route();requestAnimationFrame(loop)}
+init();
+</script></body></html>
